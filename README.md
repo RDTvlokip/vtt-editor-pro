@@ -112,8 +112,7 @@ python -m http.server 8000
 ### v3.0 (Planned)
 - [ ] Whisper API integration for auto-transcription
 - [ ] FFMPEG.js for video support
-- [ ] Multiple subtitle tracks
-- [ ] Export to SRT, ASS formats
+- [ ] Import/Export to SSA, ASS formats
 
 ### Desktop Version (Under Consideration)
 - [ ] Electron app with offline Whisper

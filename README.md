@@ -95,9 +95,19 @@ python -m http.server 8000
 ## 🗺️ Roadmap
 
 ### v2.1 (Coming Soon)
-- [ ] Visual resize handles on regions
+- [X] Visual resize handles on regions
 - [X] Snap-to-grid alignment
 - [X] Batch text editing
+
+### v2.2 (Planned)
+- [ ] Multi-Track Subtitle Support
+- [ ] Waveform Markers/Bookmarks
+- [ ] SRT Export/Import
+- [ ] Current Time Update
+- [ ] VTT Import Validation
+- [ ] Keyboard Shortcut Conflict
+- [ ] Waveform Color Update
+- [ ] Color Persistence in VTT
 
 ### v3.0 (Planned)
 - [ ] Whisper API integration for auto-transcription

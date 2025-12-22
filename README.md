@@ -217,14 +217,14 @@ python -m http.server 8000
 - [x] Batch text editing
 
 ### v2.2 (In Progress)
-- [ ] Multi-Track Subtitle Support
-- [ ] Waveform Markers/Bookmarks
-- [ ] SRT Export/Import
-- [ ] Current Time Update
-- [ ] VTT Import Validation
-- [ ] Keyboard Shortcut Conflict
-- [ ] Waveform Color Update
-- [ ] Color Persistence in VTT
+- [X] Multi-Track Subtitle Support
+- [X] Waveform Markers/Bookmarks
+- [X] SRT Export/Import
+- [X] Current Time Update
+- [X] VTT Import Validation
+- [X] Keyboard Shortcut Conflict
+- [X] Waveform Color Update
+- [X] Color Persistence in VTT
 
 ### v3.0 (Planned)
 - [ ] Whisper API integration for auto-transcription

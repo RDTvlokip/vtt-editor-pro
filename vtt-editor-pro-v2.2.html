@@ -1,0 +1,3455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 VTT Editor Pro v2.2</title>
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.top-bar {
+    background: #1a1a1a;
+    padding: 15px 30px;
+    border-bottom: 2px solid #1db954;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.logo h1 {
+    font-size: 24px;
+    color: #1db954;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+}
+
+.controls-top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #282828;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #404040;
+}
+
+.toggle-container:hover {
+    background: #333;
+    border-color: #1db954;
+}
+
+.toggle-container input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #1db954;
+}
+
+.toggle-label {
+    font-size: 13px;
+    color: #b3b3b3;
+    font-weight: bold;
+    user-select: none;
+}
+
+.toggle-container:has(input:checked) {
+    background: rgba(29, 185, 84, 0.2);
+    border-color: #1db954;
+}
+
+.toggle-container:has(input:checked) .toggle-label {
+    color: #1db954;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #1db954;
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #1ed760;
+    transform: scale(1.05);
+}
+
+.btn-play {
+    background: #1db954;
+    color: #fff;
+    font-size: 16px;
+}
+
+.btn-play:hover:not(:disabled) {
+    background: #1ed760;
+    transform: scale(1.05);
+}
+
+.btn-success {
+    background: #1db954;
+    color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #1ed760;
+}
+
+.btn-warning {
+    background: #ff9500;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background: #ffb100;
+}
+
+.btn-secondary {
+    background: #404040;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #505050;
+}
+
+.btn-danger {
+    background: #ff4444;
+    color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #ff6666;
+}
+
+.btn-icon {
+    background: #282828;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: #383838;
+}
+
+.editor-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px;
+    gap: 20px;
+}
+
+.waveform-section {
+    background: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #282828;
+}
+
+.waveform-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.waveform-header h3 {
+    font-size: 18px;
+    color: #1db954;
+}
+
+.waveform-info {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #282828;
+    border-radius: 5px;
+    border-left: 3px solid #1db954;
+}
+
+.waveform-info p {
+    font-size: 13px;
+    color: #b3b3b3;
+    margin: 0;
+}
+
+.waveform-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.waveform-controls span {
+    font-size: 14px;
+    color: #b3b3b3;
+    font-family: 'Courier New', monospace;
+}
+
+#waveform {
+    min-height: 180px;
+    background: #0a0a0a;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: crosshair;
+    position: relative; /* V2.2 - Pour les markers */
+}
+
+.wavesurfer-region {
+    border-left: 3px solid rgba(255, 255, 255, 0.8) !important;
+    border-right: 3px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+.wavesurfer-handle {
+    background: rgba(255, 255, 255, 0.95) !important;
+    width: 10px !important;
+    border-radius: 4px !important;
+    cursor: ew-resize !important;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 3px rgba(255, 255, 255, 0.5) !important;
+    transition: all 0.2s ease !important;
+}
+
+.wavesurfer-handle:hover {
+    background: #1db954 !important;
+    width: 14px !important;
+    box-shadow: 0 0 12px rgba(29, 185, 84, 0.8), 0 0 5px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* V2.2 - TOOLTIP ULTRA VISIBLE pour resize */
+.resize-tooltip {
+    position: fixed;
+    background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
+    color: #000;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 99999;
+    border: 4px solid #fff;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(29, 185, 84, 0.8),
+        0 0 80px rgba(29, 185, 84, 0.5),
+        inset 0 2px 10px rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s ease-out, visibility 0s linear 0.1s;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+    transform: translateX(-50%);
+    animation: pulse 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: translateX(-50%) scale(1);
+    }
+    to {
+        transform: translateX(-50%) scale(1.05);
+    }
+}
+
+.resize-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.1s ease-out, visibility 0s linear 0s;
+}
+
+.resize-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid #fff;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.region-duration-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(29, 185, 84, 0.95);
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+/* V2.1 - Snap-to-grid styles */
+.snap-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.snap-select {
+    background: #282828;
+    border: 1px solid #404040;
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.snap-select:focus {
+    border-color: #1db954;
+}
+
+/* V2.1 - Batch editing modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    border: 2px solid #1db954;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #282828;
+}
+
+.modal-header h2 {
+    color: #1db954;
+    font-size: 22px;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #ff4444;
+}
+
+.batch-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.batch-tab {
+    flex: 1;
+    padding: 10px 15px;
+    background: #282828;
+    border: none;
+    border-radius: 5px;
+    color: #b3b3b3;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.batch-tab.active {
+    background: #1db954;
+    color: #000;
+}
+
+.batch-tab:hover:not(.active) {
+    background: #333;
+}
+
+.batch-panel {
+    display: none;
+}
+
+.batch-panel.active {
+    display: block;
+}
+
+.batch-stats {
+    background: rgba(29, 185, 84, 0.1);
+    border: 1px solid #1db954;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.batch-stats p {
+    margin: 5px 0;
+    font-size: 13px;
+    color: #b3b3b3;
+}
+
+.batch-stats strong {
+    color: #1db954;
+}
+
+/* V2.2 - Waveform Markers/Bookmarks */
+.waveform-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #ff6b6b;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s;
+}
+
+.waveform-marker:hover {
+    width: 5px;
+    background: #ff8787;
+}
+
+.waveform-marker::before {
+    content: '📍';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+    pointer-events: none;
+}
+
+.marker-delete-btn {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 68, 68, 0.9);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+
+.waveform-marker:hover .marker-delete-btn {
+    display: flex;
+}
+
+.marker-delete-btn:hover {
+    background: rgba(255, 68, 68, 1);
+    transform: translateX(-50%) scale(1.1);
+}
+
+.marker-tooltip {
+    position: fixed;
+    background: rgba(255, 107, 107, 0.95);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 10000;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* V2.2 - Multi-Track Support */
+.track-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #282828;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #404040;
+}
+
+.track-selector label {
+    font-size: 13px;
+    color: #b3b3b3;
+    font-weight: bold;
+}
+
+.track-select {
+    background: #181818;
+    border: 1px solid #404040;
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: #1db954;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 150px;
+}
+
+.track-select:focus {
+    border-color: #1db954;
+}
+
+.track-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.track-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* V2.2 - Track Management Modal */
+.track-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.track-modal.active {
+    display: flex;
+}
+
+.track-modal-content {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    border: 2px solid #1db954;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #282828;
+    padding: 12px 15px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.track-item.active {
+    border-color: #1db954;
+    background: rgba(29, 185, 84, 0.1);
+}
+
+.track-item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.track-item-name {
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.track-item-count {
+    color: #666;
+    font-size: 12px;
+}
+
+.track-item-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.editor-section {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 400px 1fr 350px;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.lyrics-section {
+    background: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #282828;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.lyrics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.lyrics-header h3 {
+    font-size: 18px;
+    color: #1db954;
+}
+
+.lyrics-content {
+    flex: 1;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-right: 10px;
+}
+
+.lyric-line {
+    padding: 12px;
+    border-radius: 5px;
+    background: #282828;
+    border-left: 3px solid #404040;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.lyric-line:hover {
+    background: #333;
+    border-left-color: #1db954;
+}
+
+.lyric-line.active {
+    background: rgba(29, 185, 84, 0.15);
+    border-left-color: #1db954;
+    transform: translateX(5px);
+}
+
+.lyric-time {
+    font-size: 11px;
+    color: #666;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 5px;
+}
+
+.lyric-text {
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.lyric-line.active .lyric-text {
+    color: #1db954;
+    font-weight: bold;
+}
+
+.cue-editor {
+    background: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #282828;
+    overflow-y: auto;
+}
+
+.cue-editor h3 {
+    font-size: 18px;
+    color: #1db954;
+    margin-bottom: 15px;
+}
+
+.cue-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.form-group label {
+    font-size: 12px;
+    color: #b3b3b3;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    background: #282828;
+    border: 1px solid #404040;
+    border-radius: 5px;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #1db954;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.mark-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+.mark-buttons button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+.color-picker {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.color-picker input[type="color"] {
+    width: 60px;
+    height: 40px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.color-picker input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker input[type="color"]::-webkit-color-swatch {
+    border: 2px solid #404040;
+    border-radius: 5px;
+}
+
+.cue-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.cue-actions button {
+    flex: 1;
+    min-width: 100px;
+}
+
+.cues-list-section {
+    background: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #282828;
+    display: flex;
+    flex-direction: column;
+}
+
+.cues-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.cues-header h3 {
+    font-size: 18px;
+    color: #1db954;
+}
+
+.cues-list {
+    flex: 1;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 600px);
+    min-height: 300px;
+}
+
+.no-cues {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+}
+
+.cue-item {
+    background: #282828;
+    border-radius: 5px;
+    padding: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.cue-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--cue-color, #1db954);
+    border-radius: 5px 0 0 5px;
+}
+
+.cue-item:hover {
+    background: #333;
+    border-color: #404040;
+}
+
+.cue-item.active {
+    border-color: var(--cue-color, #1db954);
+    background: rgba(29, 185, 84, 0.1);
+}
+
+.cue-item.overlap {
+    border-color: #ff4444;
+    background: rgba(255, 68, 68, 0.1);
+}
+
+.cue-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.cue-number {
+    font-weight: bold;
+    color: var(--cue-color, #1db954);
+    font-size: 14px;
+}
+
+.cue-time {
+    font-size: 11px;
+    color: #b3b3b3;
+    font-family: 'Courier New', monospace;
+}
+
+.cue-text {
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.cue-warning {
+    background: rgba(255, 68, 68, 0.2);
+    color: #ff6666;
+    padding: 5px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cue-actions-row {
+    display: flex;
+    gap: 5px;
+}
+
+.cue-actions-row button {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+}
+
+.shortcuts-bar {
+    background: #1a1a1a;
+    border-top: 1px solid #282828;
+    padding: 10px 30px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.shortcut {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #b3b3b3;
+}
+
+.shortcut kbd {
+    background: #282828;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #404040;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #1db954;
+}
+
+.toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: #282828;
+    border-radius: 8px;
+    padding: 15px 20px;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease;
+    border-left: 4px solid #1db954;
+}
+
+.toast.success {
+    border-left-color: #1db954;
+}
+
+.toast.error {
+    border-left-color: #ff4444;
+}
+
+.toast.warning {
+    border-left-color: #ff9500;
+}
+
+.toast.info {
+    border-left-color: #54a0ff;
+}
+
+.toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    flex: 1;
+    color: #fff;
+    font-size: 14px;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-close:hover {
+    color: #fff;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #181818;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #505050;
+}
+
+@media (max-width: 1200px) {
+    .editor-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .cue-editor {
+        max-width: 100%;
+    }
+    
+    .lyrics-section {
+        max-height: 400px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- V2.1 - Batch Edit Modal -->
+    <div id="batch-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 Batch Text Editing</h2>
+                <button class="modal-close" id="close-batch-modal">×</button>
+            </div>
+
+            <div class="batch-stats">
+                <p><strong>Total Cues:</strong> <span id="batch-total-cues">0</span></p>
+                <p><strong>Selected Range:</strong> <span id="batch-range">All</span></p>
+            </div>
+
+            <div class="batch-tabs">
+                <button class="batch-tab active" data-tab="replace">🔍 Find & Replace</button>
+                <button class="batch-tab" data-tab="transform">✨ Transform</button>
+                <button class="batch-tab" data-tab="modify">🔧 Modify</button>
+            </div>
+
+            <!-- Find & Replace Panel -->
+            <div id="replace-panel" class="batch-panel active">
+                <div class="form-group">
+                    <label>Find Text</label>
+                    <input type="text" id="find-text" placeholder="Texte à chercher...">
+                </div>
+                <div class="form-group">
+                    <label>Replace With</label>
+                    <input type="text" id="replace-text" placeholder="Remplacer par...">
+                </div>
+                <div class="form-group">
+                    <label class="toggle-container">
+                        <input type="checkbox" id="case-sensitive">
+                        <span class="toggle-label">Case Sensitive</span>
+                    </label>
+                </div>
+                <div class="cue-actions">
+                    <button id="apply-replace" class="btn btn-primary">🔄 Replace All</button>
+                </div>
+            </div>
+
+            <!-- Transform Panel -->
+            <div id="transform-panel" class="batch-panel">
+                <div class="cue-actions" style="flex-direction: column; gap: 10px;">
+                    <button id="transform-uppercase" class="btn btn-secondary" style="width: 100%;">⬆️ UPPERCASE</button>
+                    <button id="transform-lowercase" class="btn btn-secondary" style="width: 100%;">⬇️ lowercase</button>
+                    <button id="transform-capitalize" class="btn btn-secondary" style="width: 100%;">🔤 Capitalize Each Word</button>
+                    <button id="transform-sentence" class="btn btn-secondary" style="width: 100%;">📝 Sentence case</button>
+                </div>
+            </div>
+
+            <!-- Modify Panel -->
+            <div id="modify-panel" class="batch-panel">
+                <div class="form-group">
+                    <label>Add Prefix</label>
+                    <input type="text" id="prefix-text" placeholder="Texte au début...">
+                </div>
+                <div class="form-group">
+                    <label>Add Suffix</label>
+                    <input type="text" id="suffix-text" placeholder="Texte à la fin...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Apply to Cues (Range)</label>
+                        <input type="text" id="cue-range" placeholder="Ex: 1-5 ou all" value="all">
+                    </div>
+                </div>
+                <div class="cue-actions">
+                    <button id="apply-prefix" class="btn btn-secondary">➕ Add Prefix</button>
+                    <button id="apply-suffix" class="btn btn-secondary">➕ Add Suffix</button>
+                    <button id="apply-both" class="btn btn-primary">➕ Add Both</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- V2.2 - Track Management Modal -->
+    <div id="track-modal" class="track-modal">
+        <div class="track-modal-content">
+            <div class="modal-header">
+                <h2>🎬 Manage Subtitle Tracks</h2>
+                <button class="modal-close" id="close-track-modal">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>Create New Track</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="new-track-name" placeholder="Track name (e.g., English, French, SFX)..." style="flex: 1;">
+                    <button id="create-track-btn" class="btn btn-primary">➕ Create</button>
+                </div>
+            </div>
+
+            <div class="track-list" id="track-list">
+                <!-- Tracks will be inserted here -->
+            </div>
+
+            <div class="batch-stats">
+                <p><strong>Tip:</strong> Use tracks to organize different languages, sound effects, or narrator lines.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="top-bar">
+            <div class="logo">
+                <h1>🎵 VTT Editor Pro v2.2</h1>
+                <span class="subtitle">Multi-Track • Markers • SRT Export</span>
+            </div>
+            
+            <div class="controls-top">
+                <label class="toggle-container" title="Autoriser les chevauchements">
+                    <input type="checkbox" id="allow-overlap">
+                    <span class="toggle-label">🔀 Allow Overlap</span>
+                </label>
+                <label class="toggle-container" title="Activer Snap-to-Grid">
+                    <input type="checkbox" id="snap-enabled">
+                    <span class="toggle-label">🧲 Snap Grid</span>
+                </label>
+                <div class="snap-controls">
+                    <select id="snap-interval" class="snap-select" title="Intervalle de snap">
+                        <option value="0.01">10ms</option>
+                        <option value="0.05">50ms</option>
+                        <option value="0.1" selected>100ms</option>
+                        <option value="0.25">250ms</option>
+                        <option value="0.5">500ms</option>
+                        <option value="1">1s</option>
+                    </select>
+                </div>
+                <label for="audio-upload" class="btn btn-primary">
+                    📂 Import MP3
+                    <input type="file" id="audio-upload" accept="audio/*" style="display: none;">
+                </label>
+                <label for="vtt-upload" class="btn btn-secondary">
+                    📄 Import VTT
+                    <input type="file" id="vtt-upload" accept=".vtt" style="display: none;">
+                </label>
+                <label for="srt-upload" class="btn btn-secondary">
+                    📄 Import SRT
+                    <input type="file" id="srt-upload" accept=".srt" style="display: none;">
+                </label>
+                <button id="play-btn" class="btn btn-play" disabled>▶️ Play</button>
+                <button id="add-region-btn" class="btn btn-success" disabled>➕ Add Region</button>
+                <button id="batch-edit-btn" class="btn btn-warning" disabled>📝 Batch Edit</button>
+                <button id="manage-tracks-btn" class="btn btn-secondary" disabled>🎬 Tracks</button>
+                <button id="export-btn" class="btn btn-success" disabled>💾 Export VTT</button>
+                <button id="export-srt-btn" class="btn btn-success" disabled>📄 Export SRT</button>
+            </div>
+        </header>
+
+        <main class="editor-main">
+            <div class="waveform-section">
+                <div class="waveform-header">
+                    <h3>🎵 Timeline Audio - Drag régions pour ajuster</h3>
+                    <div class="waveform-controls">
+                        <button id="zoom-in" class="btn-icon" title="Zoom In">🔍+</button>
+                        <button id="zoom-out" class="btn-icon" title="Zoom Out">🔍-</button>
+                        <button id="add-marker-btn" class="btn-icon" title="Add Marker (M)" disabled>📍</button>
+                        <button id="clear-markers-btn" class="btn-icon" title="Clear All Markers" disabled>🗑️📍</button>
+                        <button id="undo-btn" class="btn-icon" title="Undo (Ctrl+Z)" disabled>↶</button>
+                        <button id="redo-btn" class="btn-icon" title="Redo (Ctrl+Y)" disabled>↷</button>
+                        <span id="current-time">00:00.000</span> / <span id="total-duration">00:00.000</span>
+                    </div>
+                </div>
+                
+                <div class="waveform-info">
+                    <p>💡 <strong>Double-clic</strong> sur région pour éditer • <strong>Drag bords</strong> pour ajuster • <strong>Drag milieu</strong> pour déplacer • <strong>Auto-save</strong> toutes les 5s</p>
+                </div>
+                
+                <div id="waveform"></div>
+            </div>
+
+            <div class="editor-section">
+                <div class="cue-editor">
+                    <h3>✏️ Édition Cue</h3>
+
+                    <!-- V2.2 - Track Selector -->
+                    <div class="track-selector">
+                        <label>🎬 Track:</label>
+                        <select id="track-select" class="track-select">
+                            <option value="default">Main Track</option>
+                        </select>
+                    </div>
+
+                    <div class="cue-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>⏱️ Début (s)</label>
+                                <input type="number" id="cue-start" step="0.001" placeholder="0.000" min="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>⏱️ Fin (s)</label>
+                                <input type="number" id="cue-end" step="0.001" placeholder="0.000" min="0">
+                            </div>
+                            
+                            <div class="form-group mark-buttons">
+                                <button id="mark-start" class="btn btn-secondary" title="Marquer début">
+                                    ⏮️ Start
+                                </button>
+                                <button id="mark-end" class="btn btn-secondary" title="Marquer fin">
+                                    ⏭️ End
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📝 Texte</label>
+                            <textarea id="cue-text" placeholder="Tape les paroles ici..." rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>🎨 Couleur région</label>
+                            <div class="color-picker">
+                                <input type="color" id="region-color" value="#1db954">
+                                <button id="random-color" class="btn-icon" title="Couleur aléatoire">🎲</button>
+                            </div>
+                        </div>
+                        
+                        <div class="cue-actions">
+                            <button id="add-cue" class="btn btn-primary">➕ Add Cue</button>
+                            <button id="update-cue" class="btn btn-warning" style="display: none;">💾 Update</button>
+                            <button id="delete-current" class="btn btn-danger" style="display: none;">🗑️ Delete</button>
+                            <button id="cancel-edit" class="btn btn-secondary" style="display: none;">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cues-list-section">
+                    <div class="cues-header">
+                        <h3>📋 Liste des Cues (<span id="cues-count">0</span>)</h3>
+                        <button id="clear-all" class="btn btn-danger" disabled>🗑️ Clear All</button>
+                    </div>
+                    
+                    <div id="cues-list" class="cues-list">
+                        <div class="no-cues">
+                            <p>🎵 Aucun cue. Importe un MP3 et ajoute des régions !</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lyrics-section">
+                    <div class="lyrics-header">
+                        <h3>📝 Paroles complètes</h3>
+                    </div>
+                    
+                    <div id="lyrics-content" class="lyrics-content">
+                        <div style="color: #666; text-align: center; margin-top: 50px; font-style: italic;">
+                            <p>🎤 Les paroles apparaîtront ici</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="shortcuts-bar">
+            <div class="shortcut">
+                <kbd>Space</kbd> Play/Pause
+            </div>
+            <div class="shortcut">
+                <kbd>←</kbd> -1s
+            </div>
+            <div class="shortcut">
+                <kbd>→</kbd> +1s
+            </div>
+            <div class="shortcut">
+                <kbd>Ctrl+S</kbd> Mark Start
+            </div>
+            <div class="shortcut">
+                <kbd>Ctrl+B</kbd> Mark End
+            </div>
+            <div class="shortcut">
+                <kbd>Ctrl+Enter</kbd> Add Cue
+            </div>
+            <div class="shortcut">
+                <kbd>Ctrl+Z</kbd> Undo
+            </div>
+            <div class="shortcut">
+                <kbd>Ctrl+Y</kbd> Redo
+            </div>
+            <div class="shortcut">
+                <kbd>Delete</kbd> Delete Region
+            </div>
+            <div class="shortcut">
+                <kbd>M</kbd> Add Marker
+            </div>
+            <div class="shortcut" style="color: #1db954;">
+                💡 Multi-track • Markers • SRT
+            </div>
+        </footer>
+    </div>
+
+    <script>
+let wavesurfer = null;
+let regionsPlugin = null;
+let cues = [];
+let currentCueId = null;
+let isPlaying = false;
+let audioFile = null;
+let activeRegion = null;
+let currentZoom = 50;
+let allowOverlap = false;
+
+let history = [];
+let historyIndex = -1;
+const MAX_HISTORY = 20;
+
+let autoSaveInterval = null;
+let activeLyricId = null;
+
+const GAP_MINIMUM = 0.0001; // 0.1ms
+
+// V2.1 - New variables
+let snapEnabled = false;
+let snapInterval = 0.1;
+let resizeTooltip = null;
+let isResizing = false;
+let currentResizingRegion = null;
+let resizeInitialStart = 0;
+let resizeInitialEnd = 0;
+let mouseX = 0;
+let mouseY = 0;
+
+// V2.2 - New variables
+let markers = [];
+let tracks = [
+    { id: 'default', name: 'Main Track', cues: [], color: '#1db954' }
+];
+let currentTrackId = 'default';
+let markerIdCounter = 0;
+
+const elements = {
+    audioUpload: document.getElementById('audio-upload'),
+    vttUpload: document.getElementById('vtt-upload'),
+    srtUpload: document.getElementById('srt-upload'),
+    playBtn: document.getElementById('play-btn'),
+    exportBtn: document.getElementById('export-btn'),
+    addRegionBtn: document.getElementById('add-region-btn'),
+    zoomIn: document.getElementById('zoom-in'),
+    zoomOut: document.getElementById('zoom-out'),
+    undoBtn: document.getElementById('undo-btn'),
+    redoBtn: document.getElementById('redo-btn'),
+    currentTime: document.getElementById('current-time'),
+    totalDuration: document.getElementById('total-duration'),
+    cueStart: document.getElementById('cue-start'),
+    cueEnd: document.getElementById('cue-end'),
+    cueText: document.getElementById('cue-text'),
+    regionColor: document.getElementById('region-color'),
+    randomColor: document.getElementById('random-color'),
+    markStart: document.getElementById('mark-start'),
+    markEnd: document.getElementById('mark-end'),
+    addCue: document.getElementById('add-cue'),
+    updateCue: document.getElementById('update-cue'),
+    deleteCurrent: document.getElementById('delete-current'),
+    cancelEdit: document.getElementById('cancel-edit'),
+    cuesList: document.getElementById('cues-list'),
+    cuesCount: document.getElementById('cues-count'),
+    clearAll: document.getElementById('clear-all'),
+    toastContainer: document.getElementById('toast-container'),
+    lyricsContent: document.getElementById('lyrics-content'),
+    allowOverlap: document.getElementById('allow-overlap'),
+    // V2.1 - New elements
+    snapEnabled: document.getElementById('snap-enabled'),
+    snapInterval: document.getElementById('snap-interval'),
+    batchEditBtn: document.getElementById('batch-edit-btn'),
+    batchModal: document.getElementById('batch-modal'),
+    closeBatchModal: document.getElementById('close-batch-modal'),
+    batchTotalCues: document.getElementById('batch-total-cues'),
+    batchRange: document.getElementById('batch-range'),
+    findText: document.getElementById('find-text'),
+    replaceText: document.getElementById('replace-text'),
+    caseSensitive: document.getElementById('case-sensitive'),
+    applyReplace: document.getElementById('apply-replace'),
+    transformUppercase: document.getElementById('transform-uppercase'),
+    transformLowercase: document.getElementById('transform-lowercase'),
+    transformCapitalize: document.getElementById('transform-capitalize'),
+    transformSentence: document.getElementById('transform-sentence'),
+    prefixText: document.getElementById('prefix-text'),
+    suffixText: document.getElementById('suffix-text'),
+    cueRange: document.getElementById('cue-range'),
+    applyPrefix: document.getElementById('apply-prefix'),
+    applySuffix: document.getElementById('apply-suffix'),
+    applyBoth: document.getElementById('apply-both'),
+    // V2.2 - New elements
+    addMarkerBtn: document.getElementById('add-marker-btn'),
+    clearMarkersBtn: document.getElementById('clear-markers-btn'),
+    manageTracksBtn: document.getElementById('manage-tracks-btn'),
+    exportSrtBtn: document.getElementById('export-srt-btn'),
+    trackSelect: document.getElementById('track-select'),
+    trackModal: document.getElementById('track-modal'),
+    closeTrackModal: document.getElementById('close-track-modal'),
+    newTrackName: document.getElementById('new-track-name'),
+    createTrackBtn: document.getElementById('create-track-btn'),
+    trackList: document.getElementById('track-list')
+};
+
+function showToast(message, type = 'info') {
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <span class="toast-content">${message}</span>
+        <button class="toast-close">×</button>
+    `;
+
+    elements.toastContainer.appendChild(toast);
+
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.remove();
+    });
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function generateRandomColor() {
+    const colors = [
+        '#1db954', '#ff6b6b', '#4ecdc4', '#45b7d1', 
+        '#f9ca24', '#ff9ff3', '#54a0ff', '#48dbfb',
+        '#ff6348', '#1dd1a1', '#feca57', '#ee5a6f',
+        '#c44569', '#3867d6', '#8854d0', '#20bf6b'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function saveToHistory() {
+    if (historyIndex < history.length - 1) {
+        history = history.slice(0, historyIndex + 1);
+    }
+
+    history.push(JSON.parse(JSON.stringify(cues)));
+    
+    if (history.length > MAX_HISTORY) {
+        history.shift();
+    } else {
+        historyIndex++;
+    }
+    
+    updateUndoRedoButtons();
+}
+
+function undo() {
+    if (historyIndex > 0) {
+        historyIndex--;
+        cues = JSON.parse(JSON.stringify(history[historyIndex]));
+        rebuildRegions();
+        renderCues();
+        renderLyrics();
+        clearForm();
+        updateUndoRedoButtons();
+        showToast('Action annulée', 'info');
+    }
+}
+
+function redo() {
+    if (historyIndex < history.length - 1) {
+        historyIndex++;
+        cues = JSON.parse(JSON.stringify(history[historyIndex]));
+        rebuildRegions();
+        renderCues();
+        renderLyrics();
+        clearForm();
+        updateUndoRedoButtons();
+        showToast('Action rétablie', 'info');
+    }
+}
+
+function updateUndoRedoButtons() {
+    elements.undoBtn.disabled = historyIndex <= 0;
+    elements.redoBtn.disabled = historyIndex >= history.length - 1;
+}
+
+function rebuildRegions() {
+    clearAllRegions();
+    cues.forEach(cue => {
+        createRegion(cue.start, cue.end, cue.color, cue.id);
+    });
+}
+
+function renderLyrics() {
+    if (cues.length === 0) {
+        elements.lyricsContent.innerHTML = `
+            <div style="color: #666; text-align: center; margin-top: 50px; font-style: italic;">
+                <p>🎤 Les paroles apparaîtront ici</p>
+            </div>
+        `;
+        return;
+    }
+
+    elements.lyricsContent.innerHTML = '';
+
+    cues.forEach((cue, index) => {
+        const lyricLine = document.createElement('div');
+        lyricLine.className = 'lyric-line';
+        lyricLine.dataset.cueId = cue.id;
+        lyricLine.dataset.start = cue.start;
+        lyricLine.dataset.end = cue.end;
+
+        lyricLine.innerHTML = `
+            <div class="lyric-time">${formatTimeVTT(cue.start)} - ${formatTimeVTT(cue.end)}</div>
+            <div class="lyric-text">${cue.text || '<i style="color:#666;">Pas de texte</i>'}</div>
+        `;
+
+        lyricLine.addEventListener('click', () => {
+            playCue(cue.id);
+        });
+
+        elements.lyricsContent.appendChild(lyricLine);
+    });
+}
+
+function updateActiveLyric() {
+    if (!wavesurfer || cues.length === 0) return;
+    
+    const currentTime = wavesurfer.getCurrentTime();
+    const lyricLines = elements.lyricsContent.querySelectorAll('.lyric-line');
+    
+    let newActiveLyricId = null;
+    
+    lyricLines.forEach(line => {
+        const start = parseFloat(line.dataset.start);
+        const end = parseFloat(line.dataset.end);
+        const cueId = line.dataset.cueId;
+        
+        if (currentTime >= start && currentTime <= end) {
+            line.classList.add('active');
+            newActiveLyricId = cueId;
+            
+            if (activeLyricId !== cueId) {
+                line.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }
+        } else {
+            line.classList.remove('active');
+        }
+    });
+    
+    activeLyricId = newActiveLyricId;
+}
+
+function checkOverlap(start, end, excludeId = null) {
+    if (allowOverlap) return null;
+    
+    for (let cue of cues) {
+        if (excludeId && cue.id === excludeId) continue;
+        
+        if (start < cue.end && end > cue.start) {
+            return cue;
+        }
+    }
+    return null;
+}
+
+function getAdjacentCues(cueId) {
+    const index = cues.findIndex(c => c.id === cueId);
+    if (index === -1) return { prev: null, next: null };
+    
+    return {
+        prev: index > 0 ? cues[index - 1] : null,
+        next: index < cues.length - 1 ? cues[index + 1] : null
+    };
+}
+
+function snapRegionToNeighbors(region) {
+    if (allowOverlap) return;
+    
+    const cue = cues.find(c => c.id === region.id);
+    if (!cue) return;
+    
+    const { prev, next } = getAdjacentCues(cue.id);
+    
+    let needsUpdate = false;
+    let newStart = region.start;
+    let newEnd = region.end;
+    
+    if (prev && newStart < prev.end) {
+        newStart = prev.end + GAP_MINIMUM;
+        needsUpdate = true;
+    }
+    
+    if (next && newEnd > next.start) {
+        newEnd = next.start - GAP_MINIMUM;
+        needsUpdate = true;
+    }
+    
+    if (newStart >= newEnd) {
+        newStart = region.start;
+        newEnd = region.end;
+        needsUpdate = false;
+    }
+    
+    if (needsUpdate) {
+        region.setOptions({
+            start: newStart,
+            end: newEnd
+        });
+        cue.start = newStart;
+        cue.end = newEnd;
+        renderCues();
+        renderLyrics();
+    }
+}
+
+function saveToLocalStorage() {
+    try {
+        // V2.2 - Save current track's cues before saving
+        const currentTrack = getCurrentTrack();
+        if (currentTrack) {
+            currentTrack.cues = JSON.parse(JSON.stringify(cues));
+        }
+
+        const data = {
+            cues: cues,
+            audioFileName: audioFile ? audioFile.name : null,
+            timestamp: Date.now(),
+            // V2.2 - Save markers and tracks
+            markers: markers,
+            tracks: tracks,
+            currentTrackId: currentTrackId
+        };
+        localStorage.setItem('vtt-editor-data', JSON.stringify(data));
+    } catch (e) {
+        console.error('LocalStorage save failed:', e);
+    }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const data = localStorage.getItem('vtt-editor-data');
+        if (data) {
+            const parsed = JSON.parse(data);
+
+            // Compter les éléments à charger
+            const cuesCount = (parsed.cues && parsed.cues.length) || 0;
+            const markersCount = (parsed.markers && parsed.markers.length) || 0;
+            const tracksCount = (parsed.tracks && parsed.tracks.length) || 0;
+
+            if (cuesCount > 0 || markersCount > 0 || tracksCount > 0) {
+                let message = `💾 Données sauvegardées trouvées:\n`;
+                if (cuesCount > 0) message += `- ${cuesCount} cues\n`;
+                if (markersCount > 0) message += `- ${markersCount} markers\n`;
+                if (tracksCount > 0) message += `- ${tracksCount} tracks\n`;
+                message += `\nCharger ?`;
+
+                const confirmLoad = confirm(message);
+                if (confirmLoad) {
+                    // V2.2 - Load tracks first
+                    if (parsed.tracks && parsed.tracks.length > 0) {
+                        tracks = parsed.tracks;
+                        currentTrackId = parsed.currentTrackId || 'default';
+                        renderTrackSelector();
+                    }
+
+                    // Load cues
+                    if (parsed.cues) {
+                        cues = parsed.cues;
+                        rebuildRegions();
+                        renderCues();
+                        renderLyrics();
+                        saveToHistory();
+                    }
+
+                    // V2.2 - Load markers
+                    if (parsed.markers && parsed.markers.length > 0) {
+                        markers = parsed.markers;
+                        markerIdCounter = Math.max(...markers.map(m => parseInt(m.id.split('-')[1]) || 0)) + 1;
+                        renderAllMarkers();
+                        updateMarkerButtons();
+                    }
+
+                    showToast('Données restaurées depuis LocalStorage', 'success');
+                }
+            }
+        }
+    } catch (e) {
+        console.error('LocalStorage load failed:', e);
+    }
+}
+
+function startAutoSave() {
+    if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
+    }
+    autoSaveInterval = setInterval(() => {
+        // V2.2 - Save even if no cues (markers and tracks may exist)
+        if (cues.length > 0 || markers.length > 0 || tracks.length > 1) {
+            saveToLocalStorage();
+        }
+    }, 5000);
+}
+
+function detectOverlaps() {
+    if (allowOverlap) return [];
+    
+    const overlaps = [];
+    for (let i = 0; i < cues.length; i++) {
+        for (let j = i + 1; j < cues.length; j++) {
+            const a = cues[i];
+            const b = cues[j];
+            if (a.start < b.end && a.end > b.start) {
+                if (!overlaps.includes(a.id)) overlaps.push(a.id);
+                if (!overlaps.includes(b.id)) overlaps.push(b.id);
+            }
+        }
+    }
+    return overlaps;
+}
+
+function parseVTT(content) {
+    const lines = content.split('\n');
+    const parsedCues = [];
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i].trim();
+
+        if (line.includes('-->')) {
+            // Check previous line for color info
+            let color = generateRandomColor();
+            if (i > 0) {
+                const prevLine = lines[i - 1].trim();
+                const colorMatch = prevLine.match(/\[color:\s*(#[0-9A-Fa-f]{6})\]/);
+                if (colorMatch) {
+                    color = colorMatch[1];
+                }
+            }
+
+            const timeParts = line.split('-->');
+            const start = parseVTTTime(timeParts[0].trim());
+            const end = parseVTTTime(timeParts[1].trim());
+
+            i++;
+            let text = '';
+            while (i < lines.length && lines[i].trim() !== '') {
+                text += lines[i].trim() + ' ';
+                i++;
+            }
+
+            if (start !== null && end !== null) {
+                parsedCues.push({
+                    id: generateCueId(),
+                    start: start,
+                    end: end,
+                    text: text.trim(),
+                    color: color
+                });
+            }
+        }
+        i++;
+    }
+
+    return parsedCues;
+}
+
+function parseVTTTime(timeStr) {
+    const parts = timeStr.split(':');
+    if (parts.length === 3) {
+        const hours = parseInt(parts[0]);
+        const minutes = parseInt(parts[1]);
+        const seconds = parseFloat(parts[2]);
+        return hours * 3600 + minutes * 60 + seconds;
+    } else if (parts.length === 2) {
+        const minutes = parseInt(parts[0]);
+        const seconds = parseFloat(parts[1]);
+        return minutes * 60 + seconds;
+    }
+    return null;
+}
+
+// V2.2 - Parse SRT format
+function parseSRT(content) {
+    const lines = content.split('\n');
+    const parsedCues = [];
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i].trim();
+
+        // SRT format: line with -->
+        if (line.includes('-->')) {
+            const timeParts = line.split('-->');
+            const start = parseSRTTime(timeParts[0].trim());
+            const end = parseSRTTime(timeParts[1].trim());
+
+            i++;
+            let text = '';
+            // Read all text lines until empty line
+            while (i < lines.length && lines[i].trim() !== '') {
+                text += lines[i].trim() + ' ';
+                i++;
+            }
+
+            if (start !== null && end !== null) {
+                parsedCues.push({
+                    id: generateCueId(),
+                    start: start,
+                    end: end,
+                    text: text.trim(),
+                    color: generateRandomColor()
+                });
+            }
+        }
+        i++;
+    }
+
+    return parsedCues;
+}
+
+function parseSRTTime(timeStr) {
+    // SRT format uses comma for milliseconds: 00:00:01,500
+    // Replace comma with dot to make it parseable
+    timeStr = timeStr.replace(',', '.');
+
+    const parts = timeStr.split(':');
+    if (parts.length === 3) {
+        const hours = parseInt(parts[0]);
+        const minutes = parseInt(parts[1]);
+        const seconds = parseFloat(parts[2]);
+        return hours * 3600 + minutes * 60 + seconds;
+    } else if (parts.length === 2) {
+        const minutes = parseInt(parts[0]);
+        const seconds = parseFloat(parts[1]);
+        return minutes * 60 + seconds;
+    }
+    return null;
+}
+
+function initWaveSurfer() {
+    regionsPlugin = WaveSurfer.Regions.create();
+    
+    wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: '#404040',
+        progressColor: '#1db954',
+        cursorColor: '#1ed760',
+        barWidth: 2,
+        barRadius: 3,
+        cursorWidth: 2,
+        height: 180,
+        barGap: 2,
+        normalize: true,
+        backend: 'WebAudio',
+        plugins: [regionsPlugin]
+    });
+
+    wavesurfer.on('ready', () => {
+        const duration = wavesurfer.getDuration();
+        elements.totalDuration.textContent = formatTime(duration);
+        elements.playBtn.disabled = false;
+        elements.exportBtn.disabled = false;
+        elements.clearAll.disabled = false;
+        elements.addRegionBtn.disabled = false;
+        
+        loadFromLocalStorage();
+        startAutoSave();
+    });
+
+    wavesurfer.on('audioprocess', () => {
+        updateCurrentTime();
+    });
+
+    wavesurfer.on('seek', () => {
+        updateCurrentTime();
+    });
+
+    // V2.2 - Update time on click/interaction
+    wavesurfer.on('interaction', () => {
+        updateCurrentTime();
+    });
+
+    wavesurfer.on('finish', () => {
+        isPlaying = false;
+        elements.playBtn.textContent = '▶️ Play';
+    });
+
+    regionsPlugin.on('region-created', (region) => {
+        setupRegionEvents(region);
+    });
+
+    regionsPlugin.on('region-updated', (region) => {
+        updateCueFromRegion(region);
+    });
+
+    regionsPlugin.on('region-clicked', (region, e) => {
+        e.stopPropagation();
+        activeRegion = region;
+        selectCueByRegion(region);
+    });
+
+    regionsPlugin.on('region-double-clicked', (region, e) => {
+        e.stopPropagation();
+        activeRegion = region;
+        editCueByRegion(region);
+    });
+}
+
+function setupRegionEvents(region) {
+    // V2.2 - Enhanced resize tooltip with mousedown/mouseup
+    let updateTimeout = null;
+    let isMouseDown = false;
+
+    // Événement mousedown sur l'élément de la région
+    region.element.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        isResizing = true;
+        currentResizingRegion = region;
+        resizeInitialStart = region.start;
+        resizeInitialEnd = region.end;
+
+        // Afficher immédiatement le tooltip au clic
+        if (mouseX && mouseY) {
+            showResizeTooltipDual(mouseX, mouseY, region.start, region.end, false);
+        }
+    });
+
+    // Événement mouseup global
+    const handleMouseUp = () => {
+        if (isMouseDown && currentResizingRegion === region) {
+            isMouseDown = false;
+
+            // Apply snap-to-grid
+            if (snapEnabled) {
+                const snappedStart = snapToGrid(region.start);
+                const snappedEnd = snapToGrid(region.end);
+
+                if (snappedStart < snappedEnd) {
+                    region.setOptions({
+                        start: snappedStart,
+                        end: snappedEnd
+                    });
+                }
+            }
+
+            snapRegionToNeighbors(region);
+            updateCueFromRegion(region);
+            saveToHistory();
+
+            // Hide tooltip and reset
+            isResizing = false;
+            currentResizingRegion = null;
+            resizeInitialStart = 0;
+            resizeInitialEnd = 0;
+            hideResizeTooltip();
+        }
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+
+    // Événement update pour mettre à jour pendant le drag/resize
+    region.on('update', () => {
+        if (isMouseDown && mouseX && mouseY) {
+            // Détecter le type d'action
+            const startChanged = Math.abs(region.start - resizeInitialStart) > 0.001;
+            const endChanged = Math.abs(region.end - resizeInitialEnd) > 0.001;
+            const isDragging = startChanged && endChanged;
+
+            if (region.updatingSide === 'start') {
+                // Handle START déplacé
+                showResizeTooltipDual(mouseX, mouseY, region.start, null, false);
+            } else if (region.updatingSide === 'end') {
+                // Handle END déplacé
+                showResizeTooltipDual(mouseX, mouseY, null, region.end, false);
+            } else if (isDragging) {
+                // DRAG de toute la région - afficher les deux timestamps
+                showResizeTooltipDual(mouseX, mouseY, region.start, region.end, true);
+            } else {
+                // Fallback
+                showResizeTooltipDual(mouseX, mouseY, region.start, region.end, false);
+            }
+        }
+    });
+}
+
+function createRegion(start, end, color, id) {
+    const region = regionsPlugin.addRegion({
+        start: start,
+        end: end,
+        color: color + '40',
+        drag: true,
+        resize: true,
+        id: id
+    });
+
+    // V2.2 - Attach events to existing regions
+    setupRegionEvents(region);
+
+    return region;
+}
+
+function updateRegion(id, start, end, color) {
+    const regions = regionsPlugin.getRegions();
+    const region = regions.find(r => r.id === id);
+    if (region) {
+        region.setOptions({
+            start: start,
+            end: end,
+            color: color + '40'
+        });
+    }
+}
+
+function deleteRegion(id) {
+    const regions = regionsPlugin.getRegions();
+    const region = regions.find(r => r.id === id);
+    if (region) {
+        region.remove();
+    }
+}
+
+function clearAllRegions() {
+    regionsPlugin.clearRegions();
+}
+
+function updateCueFromRegion(region) {
+    const cue = cues.find(c => c.id === region.id);
+    if (cue) {
+        cue.start = region.start;
+        cue.end = region.end;
+        
+        if (currentCueId === cue.id) {
+            elements.cueStart.value = cue.start.toFixed(3);
+            elements.cueEnd.value = cue.end.toFixed(3);
+        }
+        
+        renderCues();
+        renderLyrics();
+    }
+}
+
+function selectCueByRegion(region) {
+    const cue = cues.find(c => c.id === region.id);
+    if (cue) {
+        currentCueId = cue.id;
+        elements.cueStart.value = cue.start.toFixed(3);
+        elements.cueEnd.value = cue.end.toFixed(3);
+        elements.cueText.value = cue.text;
+        elements.regionColor.value = cue.color;
+        
+        elements.addCue.style.display = 'none';
+        elements.updateCue.style.display = 'block';
+        elements.deleteCurrent.style.display = 'block';
+        elements.cancelEdit.style.display = 'block';
+        
+        updateActiveClass();
+    }
+}
+
+function editCueByRegion(region) {
+    selectCueByRegion(region);
+    elements.cueText.focus();
+}
+
+function updateCurrentTime() {
+    const time = wavesurfer.getCurrentTime();
+    elements.currentTime.textContent = formatTime(time);
+    updateActiveLyric();
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(3);
+    return `${mins.toString().padStart(2, '0')}:${secs.padStart(6, '0')}`;
+}
+
+function formatTimeVTT(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = (seconds % 60).toFixed(3);
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.padStart(6, '0')}`;
+}
+
+function generateCueId() {
+    return `cue-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function addQuickRegion() {
+    if (!wavesurfer) return;
+    
+    const currentTime = wavesurfer.getCurrentTime();
+    const duration = wavesurfer.getDuration();
+    const start = Math.min(currentTime, duration - 2);
+    const end = Math.min(start + 2, duration);
+    
+    const id = generateCueId();
+    const color = generateRandomColor();
+    
+    const cue = {
+        id: id,
+        start: start,
+        end: end,
+        text: '',
+        color: color
+    };
+    
+    cues.push(cue);
+    createRegion(start, end, color, id);
+    sortCues();
+    renderCues();
+    renderLyrics();
+    saveToHistory();
+    
+    currentCueId = id;
+    elements.cueStart.value = start.toFixed(3);
+    elements.cueEnd.value = end.toFixed(3);
+    elements.cueText.value = '';
+    elements.regionColor.value = color;
+    
+    elements.addCue.style.display = 'none';
+    elements.updateCue.style.display = 'block';
+    elements.deleteCurrent.style.display = 'block';
+    elements.cancelEdit.style.display = 'block';
+    
+    elements.cueText.focus();
+    updateActiveClass();
+}
+
+function addCue() {
+    const start = parseFloat(elements.cueStart.value);
+    const end = parseFloat(elements.cueEnd.value);
+    const text = elements.cueText.value.trim();
+    const color = elements.regionColor.value;
+
+    if (isNaN(start) || isNaN(end)) {
+        showToast('Entre des timings valides !', 'error');
+        return;
+    }
+
+    if (start >= end) {
+        showToast('Le début doit être avant la fin !', 'error');
+        return;
+    }
+
+    if (!text) {
+        showToast('Entre du texte !', 'warning');
+        return;
+    }
+
+    const overlappingCue = checkOverlap(start, end);
+    if (overlappingCue) {
+        showToast(`❌ Chevauchement avec cue "${overlappingCue.text.substring(0, 30)}..." - ${allowOverlap ? 'Autorisé' : 'Bloqué'}`, 'error');
+        if (!allowOverlap) return;
+    }
+
+    const id = generateCueId();
+    const cue = {
+        id: id,
+        start: start,
+        end: end,
+        text: text,
+        color: color
+    };
+
+    cues.push(cue);
+    createRegion(start, end, color, id);
+    sortCues();
+    renderCues();
+    renderLyrics();
+    clearForm();
+    saveToHistory();
+    showToast('Cue ajouté !', 'success');
+}
+
+function updateCue() {
+    if (!currentCueId) return;
+
+    const start = parseFloat(elements.cueStart.value);
+    const end = parseFloat(elements.cueEnd.value);
+    const text = elements.cueText.value.trim();
+    const color = elements.regionColor.value;
+
+    if (isNaN(start) || isNaN(end)) {
+        showToast('Entre des timings valides !', 'error');
+        return;
+    }
+
+    if (start >= end) {
+        showToast('Le début doit être avant la fin !', 'error');
+        return;
+    }
+
+    if (!text) {
+        showToast('Entre du texte !', 'warning');
+        return;
+    }
+
+    const overlappingCue = checkOverlap(start, end, currentCueId);
+    if (overlappingCue) {
+        showToast(`❌ Chevauchement avec cue "${overlappingCue.text.substring(0, 30)}..." - ${allowOverlap ? 'Autorisé' : 'Bloqué'}`, 'error');
+        if (!allowOverlap) return;
+    }
+
+    const cue = cues.find(c => c.id === currentCueId);
+    if (cue) {
+        cue.start = start;
+        cue.end = end;
+        cue.text = text;
+        cue.color = color;
+
+        updateRegion(currentCueId, start, end, color);
+        sortCues();
+        renderCues();
+        renderLyrics();
+        clearForm();
+        saveToHistory();
+        showToast('Cue mis à jour !', 'success');
+    }
+}
+
+function deleteCue(id) {
+    cues = cues.filter(c => c.id !== id);
+    deleteRegion(id);
+    renderCues();
+    renderLyrics();
+    saveToHistory();
+    if (currentCueId === id) {
+        clearForm();
+    }
+}
+
+function deleteCurrentCue() {
+    if (!currentCueId) return;
+    deleteCue(currentCueId);
+    showToast('Cue supprimé', 'info');
+}
+
+function editCue(id) {
+    const cue = cues.find(c => c.id === id);
+    if (!cue) return;
+
+    currentCueId = id;
+    activeRegion = regionsPlugin.getRegions().find(r => r.id === id);
+    
+    elements.cueStart.value = cue.start.toFixed(3);
+    elements.cueEnd.value = cue.end.toFixed(3);
+    elements.cueText.value = cue.text;
+    elements.regionColor.value = cue.color;
+
+    elements.addCue.style.display = 'none';
+    elements.updateCue.style.display = 'block';
+    elements.deleteCurrent.style.display = 'block';
+    elements.cancelEdit.style.display = 'block';
+
+    updateActiveClass();
+}
+
+function playCue(id) {
+    const cue = cues.find(c => c.id === id);
+    if (!cue || !wavesurfer) return;
+
+    wavesurfer.seekTo(cue.start / wavesurfer.getDuration());
+    if (!isPlaying) {
+        wavesurfer.play();
+        isPlaying = true;
+        elements.playBtn.textContent = '⏸️ Pause';
+    }
+}
+
+function clearForm() {
+    currentCueId = null;
+    activeRegion = null;
+    elements.cueStart.value = '';
+    elements.cueEnd.value = '';
+    elements.cueText.value = '';
+    elements.regionColor.value = '#1db954';
+
+    elements.addCue.style.display = 'block';
+    elements.updateCue.style.display = 'none';
+    elements.deleteCurrent.style.display = 'none';
+    elements.cancelEdit.style.display = 'none';
+
+    updateActiveClass();
+}
+
+function updateActiveClass() {
+    document.querySelectorAll('.cue-item').forEach(item => {
+        if (item.dataset.cueId === currentCueId) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+function sortCues() {
+    cues.sort((a, b) => a.start - b.start);
+}
+
+function renderCues() {
+    elements.cuesCount.textContent = cues.length;
+
+    if (cues.length === 0) {
+        elements.cuesList.innerHTML = '<div class="no-cues"><p>🎵 Aucun cue. Importe un MP3 et ajoute des régions !</p></div>';
+        return;
+    }
+
+    const overlaps = detectOverlaps();
+
+    elements.cuesList.innerHTML = '';
+
+    cues.forEach((cue, index) => {
+        const cueEl = document.createElement('div');
+        cueEl.className = 'cue-item';
+        cueEl.dataset.cueId = cue.id;
+        cueEl.style.setProperty('--cue-color', cue.color);
+
+        if (cue.id === currentCueId) {
+            cueEl.classList.add('active');
+        }
+
+        if (overlaps.includes(cue.id)) {
+            cueEl.classList.add('overlap');
+        }
+
+        let warningHTML = '';
+        if (overlaps.includes(cue.id)) {
+            warningHTML = '<div class="cue-warning">⚠️ Chevauchement détecté</div>';
+        }
+
+        cueEl.innerHTML = `
+            <div class="cue-item-header">
+                <span class="cue-number">#${index + 1}</span>
+                <span class="cue-time">${formatTimeVTT(cue.start)} → ${formatTimeVTT(cue.end)}</span>
+            </div>
+            ${warningHTML}
+            <div class="cue-text">${cue.text || '<i style="color:#666;">Pas de texte</i>'}</div>
+            <div class="cue-actions-row">
+                <button class="btn btn-secondary play-cue">▶️</button>
+                <button class="btn btn-warning edit-cue">✏️</button>
+                <button class="btn btn-danger delete-cue">🗑️</button>
+            </div>
+        `;
+
+        cueEl.querySelector('.play-cue').addEventListener('click', (e) => {
+            e.stopPropagation();
+            playCue(cue.id);
+        });
+
+        cueEl.querySelector('.edit-cue').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editCue(cue.id);
+        });
+
+        cueEl.querySelector('.delete-cue').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteCue(cue.id);
+        });
+
+        cueEl.addEventListener('click', () => {
+            editCue(cue.id);
+        });
+
+        elements.cuesList.appendChild(cueEl);
+    });
+}
+
+function markStart() {
+    if (!wavesurfer) return;
+    const time = wavesurfer.getCurrentTime();
+    elements.cueStart.value = time.toFixed(3);
+}
+
+function markEnd() {
+    if (!wavesurfer) return;
+    const time = wavesurfer.getCurrentTime();
+    elements.cueEnd.value = time.toFixed(3);
+}
+
+function exportVTT() {
+    if (cues.length === 0) {
+        showToast('Aucun cue à exporter !', 'warning');
+        return;
+    }
+
+    let vttContent = 'WEBVTT\n\n';
+
+    cues.forEach((cue, index) => {
+        vttContent += `cue-${index + 1} [color: ${cue.color}]\n`;
+        vttContent += `${formatTimeVTT(cue.start)} --> ${formatTimeVTT(cue.end)}\n`;
+        vttContent += `${cue.text}\n\n`;
+    });
+
+    const blob = new Blob([vttContent], { type: 'text/vtt' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = audioFile ? audioFile.name.replace(/\.[^/.]+$/, '.vtt') : 'subtitles.vtt';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast('VTT exporté avec succès !', 'success');
+}
+
+function clearAllCues() {
+    if (confirm('⚠️ Supprimer TOUS les cues et régions ?')) {
+        cues = [];
+        clearAllRegions();
+        renderCues();
+        renderLyrics();
+        clearForm();
+        saveToHistory();
+        showToast('Tous les cues supprimés', 'info');
+    }
+}
+
+// ===== V2.1 FEATURES =====
+
+// Feature 1: Enhanced Resize Handles with Tooltips
+function createResizeTooltip() {
+    if (!resizeTooltip) {
+        resizeTooltip = document.createElement('div');
+        resizeTooltip.className = 'resize-tooltip';
+        document.body.appendChild(resizeTooltip);
+    }
+    return resizeTooltip;
+}
+
+function showResizeTooltipDual(x, y, startTime, endTime, isDragging) {
+    const tooltip = createResizeTooltip();
+
+    let text = '';
+    if (isDragging && startTime !== null && endTime !== null) {
+        // Mode DRAG : afficher les deux timestamps
+        text = `${formatTimeVTT(startTime)} - ${formatTimeVTT(endTime)}`;
+    } else if (startTime !== null && endTime === null) {
+        // Mode START handle
+        text = formatTimeVTT(startTime);
+    } else if (endTime !== null && startTime === null) {
+        // Mode END handle
+        text = formatTimeVTT(endTime);
+    } else {
+        // Fallback : afficher juste le start
+        text = formatTimeVTT(startTime || endTime);
+    }
+
+    tooltip.textContent = text;
+
+    // Centré horizontalement grâce au transform: translateX(-50%) dans le CSS
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y - 80}px`; // 80px au-dessus pour laisser de l'espace
+    tooltip.classList.add('visible');
+}
+
+function hideResizeTooltip() {
+    if (resizeTooltip) {
+        resizeTooltip.classList.remove('visible');
+    }
+}
+
+// Feature 2: Snap-to-Grid
+function snapToGrid(value) {
+    if (!snapEnabled) return value;
+    return Math.round(value / snapInterval) * snapInterval;
+}
+
+function enableSnapToGrid() {
+    snapEnabled = elements.snapEnabled.checked;
+    snapInterval = parseFloat(elements.snapInterval.value);
+
+    if (snapEnabled) {
+        showToast(`Snap Grid activé (${snapInterval * 1000}ms)`, 'success');
+    } else {
+        showToast('Snap Grid désactivé', 'info');
+    }
+}
+
+// Feature 3: Batch Text Editing
+function openBatchModal() {
+    elements.batchModal.classList.add('active');
+    elements.batchTotalCues.textContent = cues.length;
+    elements.batchRange.textContent = 'All';
+}
+
+function closeBatchModal() {
+    elements.batchModal.classList.remove('active');
+}
+
+function parseCueRange(rangeStr) {
+    if (rangeStr.toLowerCase() === 'all') {
+        return Array.from({ length: cues.length }, (_, i) => i);
+    }
+
+    const indices = [];
+    const parts = rangeStr.split(',');
+
+    for (let part of parts) {
+        part = part.trim();
+        if (part.includes('-')) {
+            const [start, end] = part.split('-').map(s => parseInt(s.trim()) - 1);
+            for (let i = start; i <= end && i < cues.length; i++) {
+                if (i >= 0 && !indices.includes(i)) {
+                    indices.push(i);
+                }
+            }
+        } else {
+            const idx = parseInt(part) - 1;
+            if (idx >= 0 && idx < cues.length && !indices.includes(idx)) {
+                indices.push(idx);
+            }
+        }
+    }
+
+    return indices;
+}
+
+function batchFindReplace() {
+    const findStr = elements.findText.value;
+    const replaceStr = elements.replaceText.value;
+    const caseSensitive = elements.caseSensitive.checked;
+
+    if (!findStr) {
+        showToast('Entre un texte à chercher', 'warning');
+        return;
+    }
+
+    let count = 0;
+    const flags = caseSensitive ? 'g' : 'gi';
+    const regex = new RegExp(findStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+
+    cues.forEach(cue => {
+        if (regex.test(cue.text)) {
+            cue.text = cue.text.replace(regex, replaceStr);
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        renderCues();
+        renderLyrics();
+        saveToHistory();
+        showToast(`${count} cues modifiés`, 'success');
+        closeBatchModal();
+    } else {
+        showToast('Aucune occurrence trouvée', 'warning');
+    }
+}
+
+function batchTransform(type) {
+    let count = 0;
+
+    cues.forEach(cue => {
+        if (cue.text) {
+            switch(type) {
+                case 'uppercase':
+                    cue.text = cue.text.toUpperCase();
+                    break;
+                case 'lowercase':
+                    cue.text = cue.text.toLowerCase();
+                    break;
+                case 'capitalize':
+                    cue.text = cue.text.replace(/\b\w/g, c => c.toUpperCase());
+                    break;
+                case 'sentence':
+                    cue.text = cue.text.charAt(0).toUpperCase() + cue.text.slice(1).toLowerCase();
+                    break;
+            }
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        renderCues();
+        renderLyrics();
+        saveToHistory();
+        showToast(`${count} cues transformés (${type})`, 'success');
+        closeBatchModal();
+    }
+}
+
+function batchModify(mode) {
+    const prefix = elements.prefixText.value;
+    const suffix = elements.suffixText.value;
+    const rangeStr = elements.cueRange.value;
+
+    if (mode === 'prefix' && !prefix) {
+        showToast('Entre un préfixe', 'warning');
+        return;
+    }
+    if (mode === 'suffix' && !suffix) {
+        showToast('Entre un suffixe', 'warning');
+        return;
+    }
+    if (mode === 'both' && !prefix && !suffix) {
+        showToast('Entre au moins un préfixe ou suffixe', 'warning');
+        return;
+    }
+
+    const indices = parseCueRange(rangeStr);
+    let count = 0;
+
+    indices.forEach(idx => {
+        if (cues[idx]) {
+            if (mode === 'prefix' || mode === 'both') {
+                cues[idx].text = prefix + cues[idx].text;
+            }
+            if (mode === 'suffix' || mode === 'both') {
+                cues[idx].text = cues[idx].text + suffix;
+            }
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        renderCues();
+        renderLyrics();
+        saveToHistory();
+        showToast(`${count} cues modifiés`, 'success');
+        closeBatchModal();
+    }
+}
+
+// ===== END V2.1 FEATURES =====
+
+// ===== V2.2 FEATURES =====
+
+// Feature 1: Waveform Markers/Bookmarks
+function addMarker() {
+    if (!wavesurfer) return;
+
+    const time = wavesurfer.getCurrentTime();
+    const marker = {
+        id: `marker-${markerIdCounter++}`,
+        time: time,
+        label: `Marker ${markers.length + 1}`
+    };
+
+    markers.push(marker);
+    renderMarker(marker);
+    showToast(`Marker ajouté à ${formatTimeVTT(time)}`, 'success');
+    updateMarkerButtons();
+}
+
+function renderMarker(marker) {
+    const waveformEl = document.getElementById('waveform');
+    if (!waveformEl || !wavesurfer) return;
+
+    const duration = wavesurfer.getDuration();
+    const positionPercent = (marker.time / duration) * 100;
+
+    const markerEl = document.createElement('div');
+    markerEl.className = 'waveform-marker';
+    markerEl.dataset.markerId = marker.id;
+    markerEl.style.left = `${positionPercent}%`;
+    markerEl.title = `${marker.label} - ${formatTimeVTT(marker.time)}`;
+
+    // V2.2 - Add delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'marker-delete-btn';
+    deleteBtn.textContent = '×';
+    deleteBtn.title = 'Supprimer ce marker';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteMarker(marker.id);
+    });
+    markerEl.appendChild(deleteBtn);
+
+    markerEl.addEventListener('click', () => {
+        wavesurfer.seekTo(marker.time / duration);
+    });
+
+    markerEl.addEventListener('mouseenter', (e) => {
+        showMarkerTooltip(e.clientX, e.clientY, marker);
+    });
+
+    markerEl.addEventListener('mouseleave', () => {
+        hideMarkerTooltip();
+    });
+
+    waveformEl.appendChild(markerEl);
+}
+
+let markerTooltip = null;
+
+function showMarkerTooltip(x, y, marker) {
+    if (!markerTooltip) {
+        markerTooltip = document.createElement('div');
+        markerTooltip.className = 'marker-tooltip';
+        document.body.appendChild(markerTooltip);
+    }
+
+    markerTooltip.textContent = `${marker.label} - ${formatTimeVTT(marker.time)}`;
+    markerTooltip.style.display = 'block';
+    markerTooltip.style.left = `${x}px`;
+    markerTooltip.style.top = `${y - 40}px`;
+}
+
+function hideMarkerTooltip() {
+    if (markerTooltip) {
+        markerTooltip.style.display = 'none';
+    }
+}
+
+function deleteMarker(markerId) {
+    // Hide tooltip first
+    hideMarkerTooltip();
+
+    // Remove from array
+    markers = markers.filter(m => m.id !== markerId);
+
+    // Remove from DOM
+    const markerEl = document.querySelector(`.waveform-marker[data-marker-id="${markerId}"]`);
+    if (markerEl) {
+        markerEl.remove();
+    }
+
+    updateMarkerButtons();
+    showToast('Marker supprimé', 'info');
+}
+
+function clearAllMarkers() {
+    if (markers.length === 0) {
+        showToast('Aucun marker à supprimer', 'info');
+        return;
+    }
+
+    if (confirm(`Supprimer tous les ${markers.length} markers ?`)) {
+        // Hide tooltip first
+        hideMarkerTooltip();
+
+        markers = [];
+        document.querySelectorAll('.waveform-marker').forEach(el => el.remove());
+        showToast('Tous les markers supprimés', 'info');
+        updateMarkerButtons();
+    }
+}
+
+function updateMarkerButtons() {
+    elements.clearMarkersBtn.disabled = markers.length === 0;
+}
+
+function renderAllMarkers() {
+    document.querySelectorAll('.waveform-marker').forEach(el => el.remove());
+    markers.forEach(marker => renderMarker(marker));
+}
+
+// Feature 2: Multi-Track Support
+function getCurrentTrack() {
+    return tracks.find(t => t.id === currentTrackId) || tracks[0];
+}
+
+function switchTrack(trackId) {
+    // Save current track's cues
+    const currentTrack = getCurrentTrack();
+    if (currentTrack) {
+        currentTrack.cues = JSON.parse(JSON.stringify(cues));
+    }
+
+    // Switch to new track
+    currentTrackId = trackId;
+    const newTrack = getCurrentTrack();
+
+    if (newTrack) {
+        cues = JSON.parse(JSON.stringify(newTrack.cues));
+        clearAllRegions();
+        rebuildRegions();
+        renderCues();
+        renderLyrics();
+        clearForm();
+        showToast(`Switched to ${newTrack.name}`, 'info');
+    }
+}
+
+function createTrack(name) {
+    if (!name || name.trim() === '') {
+        showToast('Entre un nom de track', 'warning');
+        return;
+    }
+
+    const trackId = `track-${Date.now()}`;
+    const newTrack = {
+        id: trackId,
+        name: name.trim(),
+        cues: [],
+        color: generateRandomColor()
+    };
+
+    tracks.push(newTrack);
+    renderTrackSelector();
+    renderTrackList();
+    showToast(`Track "${name}" créé`, 'success');
+}
+
+function deleteTrack(trackId) {
+    if (trackId === 'default') {
+        showToast('Impossible de supprimer le track principal', 'error');
+        return;
+    }
+
+    if (currentTrackId === trackId) {
+        showToast('Impossible de supprimer le track actif', 'error');
+        return;
+    }
+
+    tracks = tracks.filter(t => t.id !== trackId);
+    renderTrackSelector();
+    renderTrackList();
+    showToast('Track supprimé', 'info');
+}
+
+function renderTrackSelector() {
+    elements.trackSelect.innerHTML = '';
+
+    tracks.forEach(track => {
+        const option = document.createElement('option');
+        option.value = track.id;
+        option.textContent = track.name;
+        if (track.id === currentTrackId) {
+            option.selected = true;
+        }
+        elements.trackSelect.appendChild(option);
+    });
+}
+
+function renderTrackList() {
+    elements.trackList.innerHTML = '';
+
+    tracks.forEach(track => {
+        const trackEl = document.createElement('div');
+        trackEl.className = 'track-item';
+        if (track.id === currentTrackId) {
+            trackEl.classList.add('active');
+        }
+
+        trackEl.innerHTML = `
+            <div class="track-item-info">
+                <span class="track-indicator" style="background: ${track.color};"></span>
+                <div>
+                    <div class="track-item-name">${track.name}</div>
+                    <div class="track-item-count">${track.cues.length} cues</div>
+                </div>
+            </div>
+            <div class="track-item-actions">
+                ${track.id !== 'default' ? `
+                    <button class="btn btn-danger btn-icon" onclick="deleteTrack('${track.id}')">🗑️</button>
+                ` : ''}
+            </div>
+        `;
+
+        trackEl.addEventListener('click', (e) => {
+            if (!e.target.closest('.track-item-actions')) {
+                switchTrack(track.id);
+                renderTrackList();
+            }
+        });
+
+        elements.trackList.appendChild(trackEl);
+    });
+}
+
+function openTrackModal() {
+    elements.trackModal.classList.add('active');
+    renderTrackList();
+}
+
+function closeTrackModal() {
+    elements.trackModal.classList.remove('active');
+}
+
+// Feature 3: Export to SRT Format
+function formatTimeSRT(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 1000);
+
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
+}
+
+function exportSRT() {
+    if (cues.length === 0) {
+        showToast('Aucun cue à exporter !', 'warning');
+        return;
+    }
+
+    let srtContent = '';
+
+    cues.forEach((cue, index) => {
+        srtContent += `${index + 1}\n`;
+        srtContent += `${formatTimeSRT(cue.start)} --> ${formatTimeSRT(cue.end)}\n`;
+        srtContent += `${cue.text}\n\n`;
+    });
+
+    const blob = new Blob([srtContent], { type: 'text/srt' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = audioFile ? audioFile.name.replace(/\.[^/.]+$/, '.srt') : 'subtitles.srt';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast('SRT exporté avec succès !', 'success');
+}
+
+// ===== END V2.2 FEATURES =====
+
+elements.audioUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    audioFile = file;
+
+    if (!wavesurfer) {
+        initWaveSurfer();
+    }
+
+    const url = URL.createObjectURL(file);
+    wavesurfer.load(url);
+    
+    cues = [];
+    clearAllRegions();
+    renderCues();
+    renderLyrics();
+    clearForm();
+    history = [];
+    historyIndex = -1;
+    saveToHistory();
+    showToast(`MP3 chargé: ${file.name}`, 'success');
+});
+
+elements.vttUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // V2.2 - Check if audio is loaded first
+    if (!wavesurfer || !regionsPlugin) {
+        showToast('⚠️ Importe d\'abord un fichier audio (MP3) avant le VTT !', 'error');
+        e.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const content = event.target.result;
+            const parsedCues = parseVTT(content);
+
+            if (parsedCues.length === 0) {
+                showToast('Aucun cue trouvé dans le VTT', 'error');
+                return;
+            }
+
+            cues = parsedCues;
+            rebuildRegions();
+            sortCues();
+            renderCues();
+            renderLyrics();
+            saveToHistory();
+            showToast(`${parsedCues.length} cues importés depuis VTT`, 'success');
+        } catch (err) {
+            showToast('Erreur lors de l\'import VTT', 'error');
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+
+    e.target.value = '';
+});
+
+// V2.2 - Import SRT
+elements.srtUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if audio is loaded first
+    if (!wavesurfer || !regionsPlugin) {
+        showToast('⚠️ Importe d\'abord un fichier audio (MP3) avant le SRT !', 'error');
+        e.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const content = event.target.result;
+            const parsedCues = parseSRT(content);
+
+            if (parsedCues.length === 0) {
+                showToast('Aucun cue trouvé dans le SRT', 'error');
+                return;
+            }
+
+            cues = parsedCues;
+            rebuildRegions();
+            sortCues();
+            renderCues();
+            renderLyrics();
+            saveToHistory();
+            showToast(`${parsedCues.length} cues importés depuis SRT`, 'success');
+        } catch (err) {
+            showToast('Erreur lors de l\'import SRT', 'error');
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+
+    e.target.value = '';
+});
+
+elements.playBtn.addEventListener('click', () => {
+    if (!wavesurfer) return;
+
+    if (isPlaying) {
+        wavesurfer.pause();
+        isPlaying = false;
+        elements.playBtn.textContent = '▶️ Play';
+    } else {
+        wavesurfer.play();
+        isPlaying = true;
+        elements.playBtn.textContent = '⏸️ Pause';
+    }
+});
+
+elements.addRegionBtn.addEventListener('click', addQuickRegion);
+
+elements.zoomIn.addEventListener('click', () => {
+    if (!wavesurfer) return;
+    currentZoom += 20;
+    wavesurfer.zoom(currentZoom);
+});
+
+elements.zoomOut.addEventListener('click', () => {
+    if (!wavesurfer) return;
+    currentZoom = Math.max(currentZoom - 20, 10);
+    wavesurfer.zoom(currentZoom);
+});
+
+elements.undoBtn.addEventListener('click', undo);
+elements.redoBtn.addEventListener('click', redo);
+
+elements.markStart.addEventListener('click', markStart);
+elements.markEnd.addEventListener('click', markEnd);
+elements.addCue.addEventListener('click', addCue);
+elements.updateCue.addEventListener('click', updateCue);
+elements.deleteCurrent.addEventListener('click', deleteCurrentCue);
+elements.cancelEdit.addEventListener('click', clearForm);
+elements.exportBtn.addEventListener('click', exportVTT);
+elements.clearAll.addEventListener('click', clearAllCues);
+
+elements.randomColor.addEventListener('click', () => {
+    elements.regionColor.value = generateRandomColor();
+});
+
+elements.allowOverlap.addEventListener('change', (e) => {
+    allowOverlap = e.target.checked;
+    renderCues();
+    if (allowOverlap) {
+        showToast('Chevauchements autorisés ⚠️', 'warning');
+    } else {
+        showToast('Chevauchements bloqués ✅', 'success');
+    }
+});
+
+elements.cueStart.addEventListener('input', () => {
+    if (currentCueId) {
+        const start = parseFloat(elements.cueStart.value);
+        const end = parseFloat(elements.cueEnd.value);
+        const cue = cues.find(c => c.id === currentCueId);
+        if (!isNaN(start) && !isNaN(end) && start < end && cue) {
+            updateRegion(currentCueId, start, end, cue.color);
+        }
+    }
+});
+
+elements.cueEnd.addEventListener('input', () => {
+    if (currentCueId) {
+        const start = parseFloat(elements.cueStart.value);
+        const end = parseFloat(elements.cueEnd.value);
+        const cue = cues.find(c => c.id === currentCueId);
+        if (!isNaN(start) && !isNaN(end) && start < end && cue) {
+            updateRegion(currentCueId, start, end, cue.color);
+        }
+    }
+});
+
+elements.regionColor.addEventListener('input', () => {
+    if (currentCueId) {
+        const start = parseFloat(elements.cueStart.value);
+        const end = parseFloat(elements.cueEnd.value);
+        const color = elements.regionColor.value;
+        const cue = cues.find(c => c.id === currentCueId);
+        if (!isNaN(start) && !isNaN(end) && start < end && cue) {
+            cue.color = color;
+            updateRegion(currentCueId, start, end, color);
+            renderCues();
+        }
+    }
+});
+
+// V2.2 - Track mouse position for tooltip
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            if (currentCueId) {
+                updateCue();
+            } else {
+                addCue();
+            }
+        }
+        return;
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key.toLowerCase()) {
+            case 'z':
+                e.preventDefault();
+                undo();
+                break;
+            case 'y':
+                e.preventDefault();
+                redo();
+                break;
+            case 's':
+                e.preventDefault();
+                markStart();
+                break;
+            case 'b':
+                e.preventDefault();
+                markEnd();
+                break;
+        }
+        return;
+    }
+
+    switch(e.code) {
+        case 'Space':
+            e.preventDefault();
+            elements.playBtn.click();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            if (wavesurfer) {
+                const time = Math.max(wavesurfer.getCurrentTime() - 1, 0);
+                wavesurfer.seekTo(time / wavesurfer.getDuration());
+            }
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            if (wavesurfer) {
+                const time = Math.min(wavesurfer.getCurrentTime() + 1, wavesurfer.getDuration());
+                wavesurfer.seekTo(time / wavesurfer.getDuration());
+            }
+            break;
+        case 'Delete':
+            e.preventDefault();
+            if (activeRegion) {
+                const cue = cues.find(c => c.id === activeRegion.id);
+                if (cue) {
+                    deleteCue(cue.id);
+                }
+            }
+            break;
+    }
+});
+
+// ===== V2.1 EVENT LISTENERS =====
+
+// Snap-to-Grid controls
+elements.snapEnabled.addEventListener('change', enableSnapToGrid);
+elements.snapInterval.addEventListener('change', () => {
+    snapInterval = parseFloat(elements.snapInterval.value);
+    if (snapEnabled) {
+        showToast(`Snap Grid mis à jour (${snapInterval * 1000}ms)`, 'info');
+    }
+});
+
+// Batch Edit Modal
+elements.batchEditBtn.addEventListener('click', openBatchModal);
+elements.closeBatchModal.addEventListener('click', closeBatchModal);
+
+// Close modal on overlay click
+elements.batchModal.addEventListener('click', (e) => {
+    if (e.target === elements.batchModal) {
+        closeBatchModal();
+    }
+});
+
+// Batch tabs switching
+document.querySelectorAll('.batch-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Remove active from all tabs and panels
+        document.querySelectorAll('.batch-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.batch-panel').forEach(p => p.classList.remove('active'));
+
+        // Add active to clicked tab and corresponding panel
+        tab.classList.add('active');
+        const tabName = tab.dataset.tab;
+        document.getElementById(`${tabName}-panel`).classList.add('active');
+    });
+});
+
+// Batch operations
+elements.applyReplace.addEventListener('click', batchFindReplace);
+
+elements.transformUppercase.addEventListener('click', () => batchTransform('uppercase'));
+elements.transformLowercase.addEventListener('click', () => batchTransform('lowercase'));
+elements.transformCapitalize.addEventListener('click', () => batchTransform('capitalize'));
+elements.transformSentence.addEventListener('click', () => batchTransform('sentence'));
+
+elements.applyPrefix.addEventListener('click', () => batchModify('prefix'));
+elements.applySuffix.addEventListener('click', () => batchModify('suffix'));
+elements.applyBoth.addEventListener('click', () => batchModify('both'));
+
+// Enable batch edit button when cues exist
+function updateBatchEditBtn() {
+    elements.batchEditBtn.disabled = cues.length === 0;
+}
+
+// Update batch button state when cues change
+const originalRenderCues = renderCues;
+renderCues = function() {
+    originalRenderCues.call(this);
+    updateBatchEditBtn();
+};
+
+// ===== END V2.1 EVENT LISTENERS =====
+
+// ===== V2.2 EVENT LISTENERS =====
+
+// Markers
+elements.addMarkerBtn.addEventListener('click', addMarker);
+elements.clearMarkersBtn.addEventListener('click', clearAllMarkers);
+
+// Tracks
+elements.manageTracksBtn.addEventListener('click', openTrackModal);
+elements.closeTrackModal.addEventListener('click', closeTrackModal);
+
+elements.trackModal.addEventListener('click', (e) => {
+    if (e.target === elements.trackModal) {
+        closeTrackModal();
+    }
+});
+
+elements.trackSelect.addEventListener('change', (e) => {
+    switchTrack(e.target.value);
+});
+
+elements.createTrackBtn.addEventListener('click', () => {
+    const name = elements.newTrackName.value;
+    createTrack(name);
+    elements.newTrackName.value = '';
+});
+
+elements.newTrackName.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const name = elements.newTrackName.value;
+        createTrack(name);
+        elements.newTrackName.value = '';
+    }
+});
+
+// SRT Export
+elements.exportSrtBtn.addEventListener('click', exportSRT);
+
+// Enable buttons when audio loaded
+const originalInitWaveSurfer = initWaveSurfer;
+initWaveSurfer = function() {
+    originalInitWaveSurfer.call(this);
+
+    wavesurfer.on('ready', () => {
+        elements.addMarkerBtn.disabled = false;
+        elements.exportSrtBtn.disabled = false;
+        elements.manageTracksBtn.disabled = false;
+        renderAllMarkers();
+    });
+};
+
+// Add keyboard shortcut for marker (M key)
+const originalKeydown = document.addEventListener;
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        addMarker();
+    }
+});
+
+// ===== END V2.2 EVENT LISTENERS =====
+
+renderCues();
+renderLyrics();
+    </script>
+</body>
+</html>

@@ -327,12 +327,14 @@ python -m http.server 8000
 
 ### v3.0 (Planned)
 - [ ] Zero-dependency edition (remove WaveSurfer.js)
+- [X] Export to ASS, SBV, DFXP formats
+- [X] Theme system (light/dark/etc)
+- [ ] And more !
+
+### v3.1 (Future)
+- [ ] Custom keyboard shortcuts UI
 - [ ] Whisper API integration for auto-transcription
 - [ ] FFMPEG.js for video support
-- [X] Export to ASS, SBV, DFXP formats
-- [ ] Custom keyboard shortcuts UI
-- [ ] Theme system (light/dark/custom)
-- [ ] And more !
 
 ### Desktop Version (Under Consideration)
 - [ ] Electron app with offline Whisper

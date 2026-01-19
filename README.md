@@ -329,7 +329,7 @@ python -m http.server 8000
 - [ ] Zero-dependency edition (remove WaveSurfer.js)
 - [ ] Whisper API integration for auto-transcription
 - [ ] FFMPEG.js for video support
-- [ ] Export to ASS, SBV, DFXP formats
+- [X] Export to ASS, SBV, DFXP formats
 - [ ] Custom keyboard shortcuts UI
 - [ ] Theme system (light/dark/custom)
 - [ ] And more !

@@ -332,6 +332,7 @@ python -m http.server 8000
 - [ ] Export to ASS, SBV, DFXP formats
 - [ ] Custom keyboard shortcuts UI
 - [ ] Theme system (light/dark/custom)
+- [ ] And more !
 
 ### Desktop Version (Under Consideration)
 - [ ] Electron app with offline Whisper

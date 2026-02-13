@@ -1,45 +1,49 @@
-# 🎵 VTT Editor Pro v2.2
+# 🎵 VTT Editor Pro v3.0
 
-🚀 **[Try it online → https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v2.2.html](https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v2.2.html)**
+🚀 **[Try it online → https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v3.0.html](https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v3.0.html)**
 
 A modern, lightweight, and powerful WebVTT subtitle editor that runs entirely in your browser. No installation, no signup, no cloud dependencies – just one HTML file.
 
 **Clean starting point:**
-![VTT Editor Pro v2.2 - Empty State](screenshot-empty.png)
+![VTT Editor Pro v3.0 - Empty State](screenshot-empty.png)
 
 **In action with live preview:**
-![VTT Editor Pro v2.2 - Active Editing](screenshot-active.png)
+![VTT Editor Pro v3.0 - Active Editing](screenshot-active.png)
 
 ---
 
 ## ✨ Features
 
 ### 🎨 **Modern Interface**
-- Clean, dark-themed UI designed for extended editing sessions
+- Clean, themed UI with 5 color themes
 - Color-coded regions for easy organization
 - Real-time waveform visualization
 - Responsive timeline with zoom controls
-- **NEW:** Enhanced visual resize handles with real-time tooltips
+- Minimap for global timeline overview
+- Enhanced visual resize handles with real-time tooltips
 
 ### ⚡ **Powerful Editing**
 - **Drag & Drop**: Move and resize regions directly on the timeline
 - **Visual Resize Handles**: See exact timestamps while resizing regions
 - **Snap-to-Grid**: Align regions precisely with configurable intervals (10ms to 1s)
-- **Batch Text Editing**: Transform multiple cues at once with Find & Replace, case transformations, and prefix/suffix tools
+- **Split & Merge**: Divide cues or combine consecutive ones
+- **Shift All Timings**: Offset all cues by ±X seconds
+- **Batch Text Editing**: Transform multiple cues at once with Find & Replace
 - **Anti-overlap Enforcement**: Optional feature to prevent subtitle collisions
 - **Live Preview**: Scrolling lyrics display synchronized with playback
 - **Auto-save**: Your work is saved every 5 seconds (localStorage)
 
 ### 🎯 **Workflow Optimized**
 - Import MP3/audio files directly
-- Import/Export WebVTT and SRT formats
+- Import/Export VTT, SRT, ASS, SBV, DFXP, JSON formats
+- Real-time cue search and filtering
 - Keyboard shortcuts for rapid editing
 - Precise timestamp control with snap-to-grid
 - Visual waveform for accurate timing
 - Undo/Redo with 20-step history
 
 ### 🚀 **Technical Highlights**
-- **3570 lines** of vanilla JavaScript – no frameworks
+- **6900+ lines** of vanilla JavaScript – no frameworks
 - **~200 MB RAM** usage
 - **Offline-first**: Works without internet connection
 - **Single file**: Just download and open in your browser
@@ -48,140 +52,174 @@ A modern, lightweight, and powerful WebVTT subtitle editor that runs entirely in
 
 ---
 
-## 🆕 What's New in v2.2
+## 🆕 What's New in v3.0
 
-### 1. 🎬 Multi-Track Subtitle Support
-Manage multiple subtitle tracks simultaneously. Organize different languages, speaker tracks, or subtitle styles in parallel without conflicts.
+### ✂️ Édition Avancée
 
-**How it works:**
-- Create multiple tracks with independent timelines
-- Switch between tracks seamlessly
-- Export each track separately
-- Keep all tracks in sync with the same audio
-
-**Use cases:**
-- Multi-language projects (EN, FR, DE tracks)
-- Dialogue + Music + SFX subtitles
-- Different subtitle styles for same content
-
-### 2. 🎯 Waveform Markers/Bookmarks
-Mark important moments in your audio timeline. Create visual bookmarks for beats, dialogue starts, or key events.
+#### Split Cue - Diviser un cue
+Divide a cue into two parts at the current cursor position.
 
 **Features:**
-- Add markers at any point on the waveform
-- Color-code markers for organization
-- Jump to marker with one click
-- Export/Import marker positions
-- Support for 1000+ markers without performance impact
+- Place the playhead where you want to split
+- Creates two new cues from one
+- Preserves original color and styling
+- Validates minimum duration (0.1s per cue)
 
-### 3. 📥 SRT Export/Import
-Full compatibility with SRT (SubRip) format. Import existing SRT files or export your subtitles in SRT format.
-
-**Features:**
-- Automatic format conversion VTT ↔ SRT
-- Preserves timing and text
-- Option to choose format on export
-- Clean SRT parsing with validation
-
-**SRT Format:**
-```
-1
-00:00:12,620 --> 00:00:13,160
-Yeah.
-
-2
-00:00:14,740 --> 00:00:15,101
-Yeah.
-```
-
-### 4. ⏱️ Current Time Update
-Real-time sync with audio playback. The current time display updates live as audio plays.
+#### Merge Cues - Fusionner des cues
+Combine two consecutive cues into a single one.
 
 **Features:**
-- Shows current playback position
-- Highlighted cue indicator
-- Jump to specific cue instantly
-- Perfect for real-time subtitle verification
+- Select the first cue, then merge with the next
+- Text is combined with a line break
+- Warning if gap > 1 second between cues
+- Preserves timing from start of first to end of second
 
-### 5. ✅ VTT Import Validation
-Validate VTT files before importing. Catch formatting errors, invalid timestamps, and malformed cues.
-
-**Detects:**
-- Invalid time format (must be HH:MM:SS.mmm)
-- Overlapping cues (optional)
-- Missing text content
-- Malformed headers
-- Duplicate cue IDs
-
-**Feedback:**
-- Shows error count
-- Specifies line number of errors
-- Suggests fixes
-
-### 6. ⌨️ Keyboard Shortcut Conflict Resolution
-Intelligent keyboard shortcut system that prevents conflicts and ensures smooth workflow.
+#### Shift All Timings - Décaler les timings
+Offset all cue timings by a specified amount.
 
 **Features:**
-- Smart shortcut assignment
-- Conflict detection
-- Alternative shortcuts for common actions
-- Customizable shortcuts (future release)
+- Visual preview with color-coded values (green/red)
+- Quick presets: -5s, -2s, -0.5s, +0.5s, +2s, +5s
+- Fine-tuning with ±1s and ±0.1s buttons
+- Prevents negative time values
+- Shows count of affected cues
 
-**Enhanced Shortcuts:**
-```
-Space          → Play/Pause
-←/→            → Jump ±1 second
-Ctrl+S         → Mark Start
-Ctrl+E         → Mark End
-Ctrl+Enter     → Add/Update Cue
-Ctrl+Z/Y       → Undo/Redo
-Delete         → Delete Region
-Ctrl+B         → Batch Edit
-Ctrl+M         → Add Marker
-```
+---
 
-### 7. 🎨 Waveform Color Update
-Enhanced waveform visualization with improved color contrast and clarity.
+### 🔍 Recherche & Navigation
 
-**Improvements:**
-- Better color distinction between tracks
-- Adjusted opacity for better visibility
-- Custom waveform colors per track
-- High-contrast mode for accessibility
-
-### 8. 💾 Color Persistence in VTT
-Your color assignments are now saved **directly in the VTT file** using a custom format.
-
-**Format:**
-```
-WEBVTT
-
-cue-1 [color: #20bf6b]
-00:00:12.620 --> 00:00:13.160
-Yeah.
-
-cue-2 [color: #feca57]
-00:00:14.740 --> 00:00:15.101
-Yeah.
-```
+#### Real-time Cue Search
+Find cues instantly by searching their text content.
 
 **Features:**
-- Colors persist across export/import
-- Standard VTT players ignore custom syntax (100% compatible)
-- Unique color per cue
-- Auto-generate random colors if not specified
+- Live filtering as you type
+- Shows "X / Y cues found" counter
+- Yellow highlight on matching text
+- Case-insensitive search
+- Clear button to reset
+
+#### Go to Cue
+Click on any cue in the list to jump directly to that position.
+
+---
+
+### 📊 Statistiques & Validation
+
+#### Stats Panel
+Comprehensive statistics about your subtitles.
+
+**Metrics displayed:**
+- Total Cues count
+- Total Duration
+- Average Duration per cue
+- Total Words
+- Words Per Minute (WPM) with color coding
+- Total Characters
+
+#### Validation System
+Professional-grade validation with 6 rules.
+
+**Checks:**
+| Rule | Threshold | Type |
+|------|-----------|------|
+| Minimum duration | < 0.5s | Error |
+| Maximum duration | > 10s | Warning |
+| Line length | > 42 chars | Warning |
+| Total length | > 84 chars | Warning |
+| Reading speed | > 25 CPS | Error |
+| Empty text | No content | Error |
+
+**Visual feedback:**
+- Icons on each cue (⚠️ warning, ❌ error)
+- Clickable issues to jump to problematic cue
+- Color-coded cue borders
+- Summary badges in stats panel
+
+---
+
+### 🎨 Interface
+
+#### Theme System - 5 Themes
+Customize the editor's appearance.
+
+| Theme | Description |
+|-------|-------------|
+| 🌙 Dark | Default dark theme |
+| ☀️ Light | Light mode for bright environments |
+| 💙 Blue | Blue accent theme |
+| 💜 Purple | Purple accent theme |
+| 🧡 Orange | Orange accent theme |
+
+- Saved to localStorage
+- Waveform colors update automatically
+- Persists across sessions
+
+#### Editable Markers
+Enhanced marker system with customization.
+
+**Features:**
+- Double-click marker to edit
+- Custom text labels
+- 6 color options
+- Delete from edit modal
+- Visual indicators on waveform
+
+#### Minimap
+Global timeline overview for navigation.
+
+**Features:**
+- Shows all cues as colored blocks
+- Displays all markers
+- Playhead indicator
+- Click to seek anywhere
+- Toggle visibility
+
+---
+
+### 📥 New Import Formats
+
+| Format | Extension | Description |
+|--------|-----------|-------------|
+| ASS | .ass, .ssa | Advanced SubStation Alpha |
+| SBV | .sbv | YouTube subtitle format |
+| DFXP | .dfxp, .ttml, .xml | Netflix/Broadcast standard |
+| JSON | .json | Complete project backup |
+
+---
+
+### 💾 New Export Formats
+
+| Format | Extension | Use Case |
+|--------|-----------|----------|
+| VTT | .vtt | Web standard (HTML5 video) |
+| SRT | .srt | Universal compatibility |
+| ASS | .ass | Advanced styling (anime, karaoke) |
+| SBV | .sbv | YouTube uploads |
+| DFXP | .dfxp | Netflix, broadcast TV |
+| JSON | .json | Full project backup/restore |
+
+**Export dropdown with icons and descriptions:**
+```
+💾 Export
+├─ 📝 VTT - WebVTT Standard web
+├─ 🎬 SRT - SubRip Universal
+├─ 🎨 ASS - Advanced SubStation Alpha
+├─ ▶️ SBV - YouTube Format
+├─ 📺 DFXP - TTML Netflix/Broadcast
+└─ 📦 JSON - Complete Backup
+```
 
 ---
 
 ## 📦 Installation
 
 ### Option 1: Direct Download (Recommended)
-1. Download `vtt-editor-pro-v2.2.html`
+1. Download `vtt-editor-pro-v3.0.html`
 2. Double-click to open in your browser
 3. Start editing!
 
 ### Option 2: Use Online Version
-Visit: [https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v2.2.html](https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v2.2.html)
+Visit: [https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v3.0.html](https://rdtvlokip.github.io/vtt-editor-pro/vtt-editor-pro-v3.0.html)
 
 ### Option 3: Local Server
 ```bash
@@ -191,7 +229,7 @@ cd vtt-editor-pro
 
 # Open with a local server (optional)
 python -m http.server 8000
-# Navigate to http://localhost:8000/vtt-editor-pro-v2.2.html
+# Navigate to http://localhost:8000/vtt-editor-pro-v3.0.html
 ```
 
 ---
@@ -202,11 +240,11 @@ python -m http.server 8000
 2. **Add Regions**: Click `➕ Add Region` or drag on the timeline
 3. **Enable Snap Grid** (optional): Toggle `🧲 Snap Grid` and select interval
 4. **Edit Text**: Type your subtitles in the text field
-5. **Adjust Timing**: Drag region edges (watch the tooltip!) or use Start/End fields
-6. **Add Markers** (optional): Click on waveform to add bookmarks
-7. **Use Batch Edit** (optional): Click `📝 Batch Edit` for bulk operations
-8. **Choose Format**: Export as VTT or SRT
-9. **Export**: Click `💾 Export` to save your file
+5. **Adjust Timing**: Drag region edges or use Start/End fields
+6. **Use Search**: Find specific cues with the search box
+7. **Check Stats**: Click `📊 Stats` to view validation
+8. **Choose Theme**: Select your preferred color theme
+9. **Export**: Click `💾 Export` and choose your format
 
 ---
 
@@ -222,8 +260,8 @@ python -m http.server 8000
 | `Ctrl+Enter` | Add/Update Cue |
 | `Ctrl+Z` | Undo (20-step history) |
 | `Ctrl+Y` | Redo |
-| `Ctrl+B` | Open Batch Edit |
-| `Ctrl+M` | Add Marker |
+| `Ctrl+F` | Focus search box |
+| `M` | Add Marker |
 | `Delete` | Delete selected region |
 
 ---
@@ -231,44 +269,32 @@ python -m http.server 8000
 ## 🎨 Usage Tips
 
 ### Working with Multiple Tracks
-1. Create new track: `➕ New Track`
+1. Create new track: Click `🎬 Tracks`
 2. Name your track (EN, FR, Music, etc)
 3. Edit independently
 4. Export each track separately
 5. Merge tracks in final video editor
 
-### Using Markers for Organization
-1. Click on waveform to add marker
-2. Assign color to marker
-3. Use markers as visual cues
-4. Jump between markers with shortcuts
-5. Export marker data with subtitle file
+### Using the Validation System
+1. Click `📊 Stats` to open statistics panel
+2. Review validation warnings and errors
+3. Click on any issue to jump to that cue
+4. Fix timing or text issues
+5. Re-check until all green
 
-### Import/Export Workflow
-1. **Import:** Drag & drop VTT or SRT file
-2. **Validate:** App checks for errors
-3. **Edit:** Make your changes
-4. **Export:** Choose VTT or SRT format
-5. **Save:** Colors and timing preserved
+### Efficient Editing Workflow
+1. Import audio and create rough cues
+2. Use **Shift All Timings** to sync with audio
+3. Use **Split Cue** for long segments
+4. Use **Merge Cues** for fragmented text
+5. Run validation check
+6. Export in desired format
 
-### Color Persistence
-- Colors are embedded in VTT file
-- Works with any VTT player (ignores custom syntax)
-- Reimport file = colors auto-restore
-- No separate color file needed
-
-### Snap-to-Grid Workflow
-1. Enable `🧲 Snap Grid` toggle
-2. Select interval (e.g., 100ms for music)
-3. Resize/move regions – they snap automatically
-4. Disable when you need pixel-perfect control
-
-### Batch Editing Workflow
-1. Create all your cues with timing
-2. Click `📝 Batch Edit`
-3. Use **Find & Replace** to fix typos globally
-4. Use **Transform** to apply consistent casing
-5. Use **Modify** to add symbols or formatting
+### Using Search Effectively
+1. Type in the search box to filter cues
+2. See highlighted matches
+3. Click cue to jump and edit
+4. Clear search to see all cues
 
 ---
 
@@ -279,20 +305,23 @@ python -m http.server 8000
 - **Sync control** to keep tracks aligned
 - **Track visibility** toggle
 - **Export flexibility** (individual or combined)
-- **Merge option** for final export
 
 ### Marker System
 - **Visual bookmarks** on waveform
-- **Color organization** for different marker types
+- **Custom labels** for organization
+- **Color coding** for different marker types
 - **Quick navigation** between markers
-- **Marker export** with cue data
 - **Performance optimized** for 1000+ markers
 
 ### Format Support
-- **VTT**: Full WebVTT specification
-- **SRT**: SubRip format with conversion
-- **Custom metadata**: Color codes in standard VTT
-- **Validation**: Error detection on import
+| Format | Import | Export | Notes |
+|--------|--------|--------|-------|
+| VTT | ✅ | ✅ | Full WebVTT with color metadata |
+| SRT | ✅ | ✅ | SubRip with timing conversion |
+| ASS | ✅ | ✅ | Styling stripped on import |
+| SBV | ✅ | ✅ | YouTube format |
+| DFXP | ✅ | ✅ | TTML/Netflix standard |
+| JSON | ✅ | ✅ | Complete project backup |
 
 ### Auto-save System
 - Saves every **5 seconds** to `localStorage`
@@ -302,7 +331,7 @@ python -m http.server 8000
 
 ### Undo/Redo System
 - **20-step history**
-- Works with all operations (add, edit, delete, batch, markers)
+- Works with all operations (add, edit, delete, batch, shift, split, merge)
 - Keyboard shortcuts: `Ctrl+Z` (undo), `Ctrl+Y` (redo)
 - Visual button feedback (disabled when at history limit)
 
@@ -325,16 +354,22 @@ python -m http.server 8000
 - [x] Waveform Color Update
 - [x] Color Persistence in VTT
 
-### v3.0 (Planned)
-- [ ] Zero-dependency edition (remove WaveSurfer.js)
-- [X] Export to ASS, SBV, DFXP formats
-- [X] Theme system (light/dark/etc)
-- [ ] And more !
+### ✅ v3.0 (Released)
+- [x] Export to ASS, SBV, DFXP, JSON formats
+- [x] Import from ASS, SBV, DFXP, JSON formats
+- [x] Theme system (5 themes)
+- [x] Advanced editing (Split, Merge, Shift)
+- [x] Real-time cue search
+- [x] Statistics panel with validation
+- [x] Editable markers with labels
+- [x] Minimap timeline view
+- [x] Enhanced dropdown UI
 
-### v3.1 (Future)
+### v3.1 (Planned)
+- [ ] Copy/Paste cues (Ctrl+C / Ctrl+V)
+- [ ] Go to time - Jump to precise timestamp
 - [ ] Custom keyboard shortcuts UI
 - [ ] Whisper API integration for auto-transcription
-- [ ] FFMPEG.js for video support
 
 ### Desktop Version (Under Consideration)
 - [ ] Electron app with offline Whisper
@@ -376,7 +411,7 @@ Found a bug or have a suggestion? [Open an issue](https://github.com/RDTvlokip/v
 ## 🔧 Technical Details
 
 ### Architecture
-- **Single HTML file**: All CSS, JS, and HTML in one file (3570 lines)
+- **Single HTML file**: All CSS, JS, and HTML in one file (6900+ lines)
 - **Vanilla JavaScript**: No build tools, no frameworks
 - **WaveSurfer.js v7**: Waveform visualization and audio playback
 - **localStorage**: Client-side persistence
